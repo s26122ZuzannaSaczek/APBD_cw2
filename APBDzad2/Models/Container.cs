@@ -64,3 +64,62 @@ public class RefrigeratedContainer : Container
         base.Load(weight);
     }
 }
+
+public class LiquidContainer : Container
+{
+    public bool IsHazardous { get; private set; }
+
+    public LiquidContainer(double emptyWeight, double height, double depth, double maxLoadCapacity, bool isHazardous)
+        : base(emptyWeight, height, depth, maxLoadCapacity, "L")
+    {
+        IsHazardous = isHazardous;
+    }
+
+    public override void Load(double weight)
+    {
+        if (IsHazardous && weight > MaxLoadCapacity * 0.5)
+            throw new OverFillException("Hazardous liquid containers can only be filled up to 50% of their capacity.");
+        else if (!IsHazardous && weight > MaxLoadCapacity * 0.9)
+            throw new OverFillException("Non-hazardous liquid containers can only be filled up to 90% of their capacity.");
+        
+        base.Load(weight);
+    }
+}
+public class GasContainer : Container, IHazardNotifier
+{
+    public double Pressure { get; set; }
+    public bool IsHazardous { get; set; }
+
+    public GasContainer(double emptyWeight, double height, double depth, double maxLoadCapacity, double pressure, bool isHazardous)
+        : base(emptyWeight, height, depth, maxLoadCapacity, "G")
+    {
+        Pressure = pressure;
+        IsHazardous = isHazardous;
+    }
+
+    public override void Load(double weight)
+    {
+        if (IsHazardous && weight > MaxLoadCapacity * 0.5)
+        {
+            NotifyHazard($"Attempt to overfill hazardous gas container {SerialNumber}");
+            throw new OverFillException("Hazardous gas containers can only be filled up to 50% of their capacity.");
+        }
+        else if (!IsHazardous && weight > MaxLoadCapacity * 0.9)
+        {
+            NotifyHazard($"Attempt to overfill non-hazardous gas container {SerialNumber}");
+            throw new OverFillException("Non-hazardous gas containers can only be filled up to 90% of their capacity.");
+        }
+
+        base.Load(weight);
+    }
+
+    public override void Unload()
+    {
+        CargoWeight *= 0.05; 
+    }
+
+    public void NotifyHazard(string message)
+    {
+        Console.WriteLine($"Hazard Notification: {message}");
+    }
+}
