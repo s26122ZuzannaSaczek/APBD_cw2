@@ -35,3 +35,32 @@ public abstract class Container
         CargoWeight = 0;
     }
 }
+
+public class RefrigeratedContainer : Container
+{
+    public string ProductType { get; set; }
+    public double Temperature { get; set; }
+
+    public RefrigeratedContainer(double emptyWeight, double height, double depth, double maxLoadCapacity, string productType, double temperature)
+        : base(emptyWeight, height, depth, maxLoadCapacity, "C")
+    {
+        ProductType = productType;
+        Temperature = temperature;
+    }
+
+    public void SetTemperature(double temperature)
+    {
+        if (temperature < Temperature)
+            throw new Exception("The temperature cannot be set lower than required by the product.");
+        Temperature = temperature;
+    }
+
+    public void LoadProduct(string productType, double weight, double temperature)
+    {
+        if (productType != ProductType)
+            throw new Exception("Cannot mix different types of products in the same container.");
+
+        SetTemperature(temperature);
+        base.Load(weight);
+    }
+}
